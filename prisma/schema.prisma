@@ -1,0 +1,63 @@
+// This is your Prisma schema file
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  walletAddress String?  @unique
+  trustScore    Int      @default(0)
+  totalQron     Decimal  @default(0)
+  scans         Scan[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Batch {
+  id              String   @id @default(cuid())
+  batchId         String   @unique
+  brandId         String
+  quantity        Int
+  metadata        Json
+  aiStory         Json?
+  status          String   @default("PROCESSING")
+  blockchainHash  String?
+  codes           Code[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Code {
+  id              String   @id @default(cuid())
+  batchId         String
+  batch           Batch    @relation(fields: [batchId], references: [id])
+  codeNumber      Int
+  qrImageUrl      String
+  scanUrl         String
+  blockchainHash  String   @unique
+  scanCount       Int      @default(0)
+  scans           Scan[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Scan {
+  id         String   @id @default(cuid())
+  codeId     String
+  code       Code     @relation(fields: [codeId], references: [id])
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  verified   Boolean
+  reward     Decimal  @default(0)
+  ipAddress  String?
+  userAgent  String?
+  scannedAt  DateTime @default(now())
+}
