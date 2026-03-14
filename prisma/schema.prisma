@@ -61,3 +61,21 @@ model Scan {
   userAgent  String?
   scannedAt  DateTime @default(now())
 }
+
+model ServiceOrder {
+  id                String    @id @default(cuid())
+  stripeSessionId   String    @unique
+  stripePaymentIntent String?
+  serviceId         String
+  serviceName       String
+  priceAmount       Int       // in cents
+  currency          String    @default("usd")
+  customerEmail     String?
+  customerName      String?
+  status            String    @default("pending") // pending | paid | in_progress | delivered | cancelled
+  deliveryUrl       String?
+  adminNotes        String?
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
